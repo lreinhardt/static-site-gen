@@ -15,8 +15,13 @@ class TextNode:
         self.text_type = TextType(text_type)
         self.url = url
 
+        if self.text_type == TextType.LINK and self.url == None:
+            raise ValueError("TextNode.__init__: TextType.LINK requires valid url")
+        if self.text_type == TextType.IMAGE and self.url == None:
+            raise ValueError("TextNode.__init__: TextType.IMAGE requires valid url")
+
     def __eq__(self, other):
         return (self.text == other.text) and (self.text_type == other.text_type) and (self.url == other.url)
     
     def __repr__(self):
-        return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
+        return f"TextNode(text=\"{self.text}\" text_type={self.text_type.value} url={self.url})"

@@ -28,6 +28,11 @@ class TestTextNode(unittest.TestCase):
         node1 = TextNode("Base TextNode", TextType.BOLD, "https://test.org")
         node6 = TextNode("Base TextNode", TextType.BOLD)
         self.assertNotEqual(node1, node6)
+    
+    def test_repr(self):
+        node4 = TextNode("Base TextNode", TextType.IMAGE, "https://test.org/test.jpg")
+        chk_str = "TextNode(text=\"Base TextNode\" text_type=image url=https://test.org/test.jpg)"
+        self.assertEqual(repr(node4), chk_str)
 
 
 
