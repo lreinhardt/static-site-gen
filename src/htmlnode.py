@@ -1,4 +1,5 @@
 from textnode import *
+import re
 
 class HTMLNode:
 
@@ -86,3 +87,34 @@ def text_node_to_html_node(textnd:TextNode):
             return LeafNode("a", textnd.text, {"href":textnd.url})
         case TextType.IMAGE:
             return LeafNode("img", None, {"src":textnd.url, "alt":textnd.text})
+    
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    for n in old_nodes:
+        if n.text_type != TextType.NORMAL:
+            continue
+        if (n.text.count(delimiter) % 2) == 1:
+            raise Exception("mismatched markdown delimiters")
+        
+        new_nodes = []
+        blocks = n.text.split(delimiter)
+        for i in range(len(blocks)):
+            if len(blocks[i]) == 0:
+                continue
+            if (i % 2) == 0:
+                new_nodes.append(TextNode(blocks[i], TextType.NORMAL))
+            else:
+                new_nodes.append(TextNode(blocks[i], text_type))
+        
+        return new_nodes
+
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+
+
+def extract_markdown_links(text):
+    return re.findall(r"\[(.*?)\]\((.*?)\)", text)
+
+
+

@@ -1,12 +1,11 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from htmlnode import *
 from textnode import *
 
 
 class Testhtmlode(unittest.TestCase):
 
-    ### HTMLNode
     def test_repr_1(self):
         node = HTMLNode(None, None, None, None)
         chk_str = 'HTMLNode(tag=None value=None children=None props=None)'
@@ -38,13 +37,13 @@ class Testhtmlode(unittest.TestCase):
         chk_str = "attr1=\"val1\" attr2=\"val2\" attr3=\"val3\""
         self.assertEqual(node.props_to_html(), chk_str)
     
-    ### LeafNode
+
     def test_leafnode_to_html(self):
         node = LeafNode("a", "link to site", {"href":"https://test.com"})
         chk_str = "<a href=\"https://test.com\">link to site</a>"
         self.assertEqual(node.to_html(), chk_str)
     
-    ### ParentNode
+
     def test_parentnode_to_html(self):
         ln1 = LeafNode("p", "this is a paragraph")
         ln2 = LeafNode("b", "bold text")
@@ -53,7 +52,7 @@ class Testhtmlode(unittest.TestCase):
         chk_str = '<div attr1="value1"><p >this is a paragraph</p><b >bold text</b></div>'
         self.assertEqual(node.to_html(), chk_str)
     
-    ### text_node_to_html_node
+
     def test_text_node_to_html_node_1(self):
         tn1 = TextNode("normal content", TextType.NORMAL)
         nd1 = LeafNode(None, "normal content")
@@ -83,6 +82,31 @@ class Testhtmlode(unittest.TestCase):
         tn1 = TextNode("image", TextType.IMAGE, "https://test.com/test.jpg")
         nd1 = LeafNode("img", None, {"src":"https://test.com/test.jpg", "alt":"image"})
         self.assertEqual(repr(nd1), repr(text_node_to_html_node(tn1)))
+    
+
+    def test_split_nodes_delimiter_1(self):
+        tn = TextNode("normal text 1 **bold_text** normal text 2", TextType.NORMAL)
+        nn = split_nodes_delimiter([tn], "**", TextType.BOLD)
+        self.assertEqual(repr(nn), repr([TextNode("normal text 1 ", TextType.NORMAL), TextNode("bold_text", TextType.BOLD), TextNode(" normal text 2", TextType.NORMAL)]))
+    
+    def test_split_nodes_delimiter_2(self):
+        tn = TextNode("normal text 1 `code text` normal text 2", TextType.NORMAL)
+        nn = split_nodes_delimiter([tn], "`", TextType.CODE)
+        self.assertEqual(repr(nn), repr([TextNode("normal text 1 ", TextType.NORMAL), TextNode("code text", TextType.CODE), TextNode(" normal text 2", TextType.NORMAL)]))
+
+    
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        " and this is another ![image2](https://i.imgur.com/jsdTZks.png)")
+        
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png"),
+                              ("image2", "https://i.imgur.com/jsdTZks.png")], matches)
+    
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_links("This is text with a [link](https://test.com)")
+        self.assertListEqual([("link", "https://test.com")], matches)
+
 
 if __name__ == "__main__":
     unittest.main()
