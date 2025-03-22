@@ -1,5 +1,6 @@
 import os
 import shutil
+import htmlnode
 
 def cleanup_directory(root_path):
     if not os.path.exists(root_path):
@@ -40,6 +41,12 @@ def recursive_copy(src, dst):
 def main():
     cleanup_directory("public")
     recursive_copy("static", "public")
+
+    markdown_path = "content/index.md"
+    template_path = "template.html"
+    html_path = "public/index.html"
+    
+    htmlnode.generate_page(markdown_path, template_path, html_path)
 
 
 if __name__ == '__main__':

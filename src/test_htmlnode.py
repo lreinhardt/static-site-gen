@@ -207,7 +207,11 @@ This is another paragraph with _italic_ text and `code` here
 3. item 3
 """
         chk_str = "<div><h3>heading 3 <i>italic text</i> heading 3</h3><p>This is <b>bolded</b> paragraph<br>text in a p<br>tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p><ul><li>item 1</li><li>item 2</li><li>item 3</li></ul><ol><li>item 1</li><li>item 2</li><li>item 3</li></ol></div>"
-        self.assertEqual(markdown_to_html_node(md).to_html(), chk_str) 
+        self.assertEqual(markdown_to_html_node(md).to_html(), chk_str)
+    
+    def test_extract_title(self):
+        md = "# heading 1 "
+        self.assertEqual(extract_title(md), "heading 1")
 
 if __name__ == "__main__":
     unittest.main()

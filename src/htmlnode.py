@@ -1,5 +1,6 @@
 from textnode import *
 import re
+import os
 
 class HTMLNode:
 
@@ -48,10 +49,15 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
-        if self.tag != None:
-            return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+        if self.value == None:
+            v = ""
         else:
-            return f"{self.value}"
+            v = self.value
+
+        if self.tag != None:
+            return f"<{self.tag}{self.props_to_html()}>{v}</{self.tag}>"
+        else:
+            return f"{v}"
 
 
 class ParentNode(HTMLNode):
@@ -223,7 +229,9 @@ def markdown_ol_to_html_nodes(md):
 
     items_nodes = []
     for i in li_items:
-        items_nodes.append(LeafNode("li", i))
+        tns = text_to_textnode(i)
+        hns = [text_node_to_html_node(t) for t in tns]
+        items_nodes.append(ParentNode("li", hns))
     
     return ParentNode("ol", items_nodes)
 
@@ -235,7 +243,9 @@ def markdown_ul_to_html_nodes(md):
 
     items_nodes = []
     for i in li_items:
-        items_nodes.append(LeafNode("li", i))
+        tns = text_to_textnode(i)
+        hns = [text_node_to_html_node(t) for t in tns]
+        items_nodes.append(ParentNode("li", hns))
     
     return ParentNode("ul", items_nodes)
 
@@ -269,3 +279,31 @@ def markdown_to_html_node(markdown):
     root_node = ParentNode("div", block_nodes)
     
     return root_node
+
+def extract_title(md):
+    headings = re.findall(r"#(.*)", md)
+    if len(headings) == 0:
+        raise Exception("no h1 heading found")
+    
+    return headings[0].strip()
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"generating page from {from_path} to {dest_path} using {template_path}")
+
+    if not os.path.exists(from_path):
+        raise FileNotFoundError(f"no such file: {from_path}")
+    
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"no such file: {template_path}")
+    
+    with open(from_path) as f_md:
+        with open(template_path) as f_tmpl:
+            with open(dest_path, "w") as f_html:
+                md = f_md.read()
+                tmpl = f_tmpl.read()
+
+                title = extract_title(md)
+                content = markdown_to_html_node(md).to_html()
+                rendered_content = tmpl.replace("{{ Title }}", title).replace("{{ Content }}", content)
+                f_html.write(rendered_content)
