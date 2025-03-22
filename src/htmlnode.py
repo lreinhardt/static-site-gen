@@ -249,6 +249,13 @@ def markdown_ul_to_html_nodes(md):
     
     return ParentNode("ul", items_nodes)
 
+def markdown_quote_to_html(md):
+    quotes = md.split("<br>")
+    quotes = [q[1:].strip() for q in quotes]
+    tns = text_to_textnode("<br>".join(quotes))
+    hns = [text_node_to_html_node(tn) for tn in tns]
+    quote_node = ParentNode("blockquote", hns)
+    return quote_node
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -268,9 +275,7 @@ def markdown_to_html_node(markdown):
             hns = [text_node_to_html_node(tn) for tn in tns]
             block_nodes.append(ParentNode("p", hns))
         elif bt == BlockType.QUOTE:
-            tns = text_to_textnode(blk)
-            hns = [text_node_to_html_node(tn) for tn in tns]
-            block_nodes.append(ParentNode("quote", hns))
+            block_nodes.append(markdown_quote_to_html(blk))
         elif bt == BlockType.UNORDERED_LIST:
             block_nodes.append(markdown_ul_to_html_nodes(blk))
         elif bt == BlockType.ORDERED_LIST:
@@ -307,3 +312,21 @@ def generate_page(from_path, template_path, dest_path):
                 content = markdown_to_html_node(md).to_html()
                 rendered_content = tmpl.replace("{{ Title }}", title).replace("{{ Content }}", content)
                 f_html.write(rendered_content)
+
+
+def generate_pages_recursive(content_path, template_path, dest_path):
+    if not os.path.exists(content_path):
+        raise FileNotFoundError(f"no such directory: {content_path}")
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"no such file: {template_path}")
+    
+    for fp in os.listdir(content_path):
+        src_fp = os.path.join(content_path, fp)
+
+        if os.path.isfile(src_fp) and src_fp.endswith("index.md"):
+            dst_fp = os.path.join(dest_path, "index.html")
+            generate_page(src_fp, template_path, dst_fp)
+        elif os.path.isdir(src_fp):
+            dst_fp = os.path.join(dest_path, fp)
+            os.mkdir(dst_fp)
+            generate_pages_recursive(src_fp, template_path, dst_fp)

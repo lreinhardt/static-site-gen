@@ -42,11 +42,11 @@ def main():
     cleanup_directory("public")
     recursive_copy("static", "public")
 
-    markdown_path = "content/index.md"
+    content_path = "content"
     template_path = "template.html"
-    html_path = "public/index.html"
+    public_path = "public"
     
-    htmlnode.generate_page(markdown_path, template_path, html_path)
+    htmlnode.generate_pages_recursive(content_path, template_path, public_path)
 
 
 if __name__ == '__main__':
