@@ -48,7 +48,7 @@ def main():
     cleanup_directory(public_path)
     recursive_copy(static_path, public_path)
     
-    htmlnode.generate_pages_recursive(content_path, template_path, public_path)
+    htmlnode.generate_pages_recursive(content_path, template_path, public_path, sys.argv[1])
 
 
 if __name__ == '__main__':
