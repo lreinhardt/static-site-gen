@@ -1,6 +1,7 @@
 import os
 import shutil
 import htmlnode
+import sys
 
 def cleanup_directory(root_path):
     if not os.path.exists(root_path):
