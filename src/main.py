@@ -40,12 +40,13 @@ def recursive_copy(src, dst):
 
 
 def main():
-    cleanup_directory("public")
-    recursive_copy("static", "public")
-
     content_path = "content"
     template_path = "template.html"
-    public_path = "public"
+    public_path = "docs"
+    static_path = "static"
+
+    cleanup_directory(public_path)
+    recursive_copy(static_path, public_path)
     
     htmlnode.generate_pages_recursive(content_path, template_path, public_path)
 
